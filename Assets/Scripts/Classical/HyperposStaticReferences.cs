@@ -13,6 +13,10 @@ public class HyperposStaticReferences : MonoBehaviour {
     [SerializeField]
     private Camera mainCamera;
 
+    public static Camera HyperdistCamera { get; private set; }
+    [SerializeField]
+    private Camera hyperdistCamera;
+
 
 
     private void OnValidate()
@@ -23,11 +27,11 @@ public class HyperposStaticReferences : MonoBehaviour {
     private void Awake()
     {
         OctantSize = octantSize;
-        MainCamera = mainCamera;
+        HyperdistCamera = hyperdistCamera;
     }
 
-    private void Start()
-    {
-        World.Active.GetOrCreateManager<HPMeshInstanceRendererSystem>().ActiveCamera = mainCamera;
-    }
+    //private void Start()
+    //{
+    //    World.Active.GetOrCreateManager<HPMeshInstanceRendererSystem>().ActiveCamera = mainCamera;
+    //}
 }

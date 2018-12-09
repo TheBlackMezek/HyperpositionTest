@@ -87,7 +87,8 @@ struct FrustumPlanes
 [ExecuteInEditMode]
 public class HPMeshInstanceRendererSystem : ComponentSystem
 {
-    public Camera ActiveCamera;
+    //public Camera ActiveCamera;
+    private Camera[] ActiveCameras = new Camera[2];
 
     private int m_LastFrozenChunksOrderVersion = -1;
     private int m_LastDynamicChunksOrderVersion = -1;
@@ -627,20 +628,20 @@ public class HPMeshInstanceRendererSystem : ComponentSystem
     void RenderBatch(int lastRendererIndex, int batchCount)
     {
         var renderer = EntityManager.GetSharedComponentData<HPMeshInstanceRenderer>(lastRendererIndex);
-        
+        //Debug.Log("RENDERING_BATCH");
         if (renderer.mesh && renderer.material)
         {
             if (renderer.material.enableInstancing)
             {
                 Graphics.DrawMeshInstanced(renderer.mesh, renderer.subMesh, renderer.material,
                     m_MatricesArray,
-                    batchCount, null, renderer.castShadows, renderer.receiveShadows, 0, ActiveCamera);
+                    batchCount, null, renderer.castShadows, renderer.receiveShadows, 0, ActiveCameras[renderer.layer]);
             }
             else
             {
                 for (int i = 0; i != batchCount; i++)
                 {
-                    Graphics.DrawMesh(renderer.mesh, m_MatricesArray[i], renderer.material, 0, ActiveCamera, renderer.subMesh, null, renderer.castShadows, renderer.receiveShadows);
+                    Graphics.DrawMesh(renderer.mesh, m_MatricesArray[i], renderer.material, 0, ActiveCameras[renderer.layer], renderer.subMesh, null, renderer.castShadows, renderer.receiveShadows);
                 }
 
                 //@TODO : temporarily disabled because it spams the console about Resources/unity_builtin_extra
@@ -803,14 +804,15 @@ public class HPMeshInstanceRendererSystem : ComponentSystem
 
     protected override void OnUpdate()
     {
-        Debug.Log("ACTIVE_CAMERA:" + ActiveCamera + " STATIC_CAMERA:" + HyperposStaticReferences.MainCamera);
-        if (ActiveCamera == null)
+        //Debug.Log("ACTIVE_CAMERA:" + ActiveCamera + " STATIC_CAMERA:" + HyperposStaticReferences.MainCamera);
+        if (ActiveCameras[0] == null)
         {
-            ActiveCamera = HyperposStaticReferences.MainCamera;
+            ActiveCameras[0] = HyperposStaticReferences.MainCamera;
+            ActiveCameras[1] = HyperposStaticReferences.HyperdistCamera;
         }
         else
         {
-            m_Planes = new FrustumPlanes(ActiveCamera);
+            m_Planes = new FrustumPlanes(ActiveCameras[0]);
 
             UpdateMissingVisibleLocalToWorld();
 
